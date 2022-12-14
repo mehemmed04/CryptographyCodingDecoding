@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -51,43 +52,37 @@ namespace CodingDecoding
         {
             InitializeComponent();
         }
-
+        static string hash { get; set; } = "A!9HHhi%XjjYY4YP2@Nob009X";
         private void MD5Btn_Click(object sender, RoutedEventArgs e)
         {
-            string str_encode = GetEnCodeFromRichtextbox();
-            MD5 md5Hash = MD5.Create();
-            // Convert the input string to a byte array and compute the hash.
-            byte[] data = md5Hash.ComputeHash(Encoding.UTF8.GetBytes(str_encode));
-
-            // Create a new Stringbuilder to collect the bytes
-            // and create a string.
-            StringBuilder sBuilder = new StringBuilder();
-
-            // Loop through each byte of the hashed data 
-            // and format each one as a hexadecimal string.
-            for (int i = 0; i < data.Length; i++)
+            byte[] data = UTF8Encoding.UTF8.GetBytes(GetEnCodeFromRichtextbox());
+            using (MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider())
             {
-                sBuilder.Append(data[i].ToString("x2"));
+                byte[] keys = md5.ComputeHash(UTF8Encoding.UTF8.GetBytes(hash));
+                using (TripleDESCryptoServiceProvider tripDes = new TripleDESCryptoServiceProvider() { Key = keys, Mode = CipherMode.ECB, Padding = PaddingMode.PKCS7 })
+                {
+                    ICryptoTransform transform = tripDes.CreateEncryptor();
+                    byte[] results = transform.TransformFinalBlock(data, 0, data.Length);
+                    SetDecodeRichtextbox(Convert.ToBase64String(results, 0, results.Length));
+                }
             }
-
-            // Return the hexadecimal string.
-            SetDecodeRichtextbox(sBuilder.ToString());
         }
 
         private void SHA256Btn_Click(object sender, RoutedEventArgs e)
         {
             string value = GetEnCodeFromRichtextbox();
-            StringBuilder Sb = new StringBuilder();
 
-            using (SHA256 hash = SHA256Managed.Create())
-            {
-                Encoding enc = Encoding.UTF8;
-                Byte[] result = hash.ComputeHash(enc.GetBytes(value));
+            byte[] bytesToBeEncrypted = Encoding.UTF8.GetBytes(value);
+            byte[] passwordBytes = Encoding.UTF8.GetBytes("Password");
 
-                foreach (Byte b in result)
-                    Sb.Append(b.ToString("x2"));
-            }
-            SetDecodeRichtextbox(Sb.ToString());
+            // Hash the password with SHA256
+            passwordBytes = SHA256.Create().ComputeHash(passwordBytes);
+
+            byte[] bytesEncrypted = AES_Encrypt(bytesToBeEncrypted, passwordBytes);
+
+            string encryptedResult = Convert.ToBase64String(bytesEncrypted);
+
+            SetDecodeRichtextbox(encryptedResult);
         }
 
         private void BASE64Btn_Click(object sender, RoutedEventArgs e)
@@ -96,12 +91,6 @@ namespace CodingDecoding
             SetDecodeRichtextbox(System.Convert.ToBase64String(plainTextBytes));
         }
 
-        private void DeCodeMD5Btn_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-  
 
         private void DeCodeBASE64Btn_Click(object sender, RoutedEventArgs e)
         {
@@ -111,6 +100,100 @@ namespace CodingDecoding
         {
             var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
             return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
+        }
+
+        private void DeCodeSHA256Btn_Click(object sender, RoutedEventArgs e)
+        {
+            byte[] bytesToBeDecrypted = Convert.FromBase64String(GetDeCodeFromRichtextbox());
+            byte[] passwordBytesdecrypt = Encoding.UTF8.GetBytes("Password");
+            passwordBytesdecrypt = SHA256.Create().ComputeHash(passwordBytesdecrypt);
+
+            byte[] bytesDecrypted = AES_Decrypt(bytesToBeDecrypted, passwordBytesdecrypt);
+
+            string decryptedResult = Encoding.UTF8.GetString(bytesDecrypted);
+            /***********************End*Decryption******************************************/
+
+            SetEncodeRichtextbox(decryptedResult);
+        }
+
+        public static byte[] AES_Decrypt(byte[] bytesToBeDecrypted, byte[] passwordBytes)
+        {
+            byte[] decryptedBytes = null;
+
+            // Set your salt here, change it to meet your flavor:
+            // The salt bytes must be at least 8 bytes.
+            byte[] saltBytes = new byte[] { 2, 1, 7, 3, 6, 4, 8, 5 };
+
+            using (MemoryStream ms = new MemoryStream())
+            {
+                using (RijndaelManaged AES = new RijndaelManaged())
+                {
+                    AES.KeySize = 256;
+                    AES.BlockSize = 128;
+
+                    var key = new Rfc2898DeriveBytes(passwordBytes, saltBytes, 1000);
+                    AES.Key = key.GetBytes(AES.KeySize / 8);
+                    AES.IV = key.GetBytes(AES.BlockSize / 8);
+
+                    AES.Mode = CipherMode.CBC;
+
+                    using (var cs = new CryptoStream(ms, AES.CreateDecryptor(), CryptoStreamMode.Write))
+                    {
+                        cs.Write(bytesToBeDecrypted, 0, bytesToBeDecrypted.Length);
+                    }
+                    decryptedBytes = ms.ToArray();
+                }
+            }
+
+            return decryptedBytes;
+        }
+
+        public static byte[] AES_Encrypt(byte[] bytesToBeEncrypted, byte[] passwordBytes)
+        {
+            byte[] encryptedBytes = null;
+
+            // Set your salt here, change it to meet your flavor:
+            // The salt bytes must be at least 8 bytes.
+            byte[] saltBytes = new byte[] { 2, 1, 7, 3, 6, 4, 8, 5 };
+
+            using (MemoryStream ms = new MemoryStream())
+            {
+                using (RijndaelManaged AES = new RijndaelManaged())
+                {
+                    AES.KeySize = 256;
+                    AES.BlockSize = 128;
+
+                    var key = new Rfc2898DeriveBytes(passwordBytes, saltBytes, 1000);
+                    AES.Key = key.GetBytes(AES.KeySize / 8);
+                    AES.IV = key.GetBytes(AES.BlockSize / 8);
+
+                    AES.Mode = CipherMode.CBC;
+
+                    using (var cs = new CryptoStream(ms, AES.CreateEncryptor(), CryptoStreamMode.Write))
+                    {
+                        cs.Write(bytesToBeEncrypted, 0, bytesToBeEncrypted.Length);
+                        cs.Close();
+                    }
+                    encryptedBytes = ms.ToArray();
+                }
+            }
+
+            return encryptedBytes;
+        }
+
+        private void DeCodeMD5Btn_Click(object sender, RoutedEventArgs e)
+        {
+            byte[] data = Convert.FromBase64String(GetDeCodeFromRichtextbox()); // decrypt the incrypted text
+            using (MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider())
+            {
+                byte[] keys = md5.ComputeHash(UTF8Encoding.UTF8.GetBytes(hash));
+                using (TripleDESCryptoServiceProvider tripDes = new TripleDESCryptoServiceProvider() { Key = keys, Mode = CipherMode.ECB, Padding = PaddingMode.PKCS7 })
+                {
+                    ICryptoTransform transform = tripDes.CreateDecryptor();
+                    byte[] results = transform.TransformFinalBlock(data, 0, data.Length);
+                  SetEncodeRichtextbox( UTF8Encoding.UTF8.GetString(results));
+                }
+            }
         }
     }
 }
