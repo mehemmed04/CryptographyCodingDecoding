@@ -5,113 +5,136 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CodingDecoding"
         mc:Ignorable="d"
-        Title="MainWindow" Height="570" Width="1010">
+        Title="MainWindow" Height="400" Width="800">
 
-    <Window.Resources>
-        <Style TargetType="Button">
-            <Setter Property="OverridesDefaultStyle" Value="True" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Name="border" BorderThickness="0" BorderBrush="Black" Background="{TemplateBinding Background}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Opacity" Value="0.8" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </Window.Resources>
-
-    <StackPanel Margin="10">
-        <TextBlock FontSize="25"
-                   Foreground="Green">ENCODE</TextBlock>
-        <StackPanel Orientation="Horizontal">
-            <RichTextBox Width="425"
+    <Border CornerRadius="12">
         
-                     FontSize="22"
-                    Height="80"
-                     Name="EnCodeTxb">
-
-            </RichTextBox>
-            <StackPanel VerticalAlignment="Center">
-                <Border BorderBrush="Green"
-                        CornerRadius="15"
-                        BorderThickness="2"
-                        Margin="10" >
-
-                    <Button Name="MD5Btn" Click="MD5Btn_Click" FontSize="25">MD5</Button>
-                </Border>
-                <Border BorderBrush="Green"
-                        CornerRadius="15"
-                        BorderThickness="2"
-                        Margin="10" >
-                    <Button Name="SHA256Btn" Click="SHA256Btn_Click" Margin="10" FontSize="25">SHA256</Button>
-                </Border>
-                <Border BorderBrush="Green"
-                        CornerRadius="15"
-                        BorderThickness="2"
-                        Margin="10" >
-                    <Button Name="BASE64Btn" Click="BASE64Btn_Click" Margin="10" FontSize="25">BASE64</Button>
-                </Border>
-            </StackPanel>
-            <RichTextBox Width="425"
-                     Height="80"
-                 FontSize="20"
-                 Name="DeCodeTxtb">
-
-            </RichTextBox>
-        </StackPanel>
-        <Border
-            BorderBrush="Gray"
-            BorderThickness="0,0,0,1">
-            
+        <Border CornerRadius="10"                    
+            BorderThickness="2"
+            Opacity="0.95">
+            <Border.BorderBrush>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#462AD8" Offset="0"/>
+                    <GradientStop Color="#DA34AE" Offset="0.75"/>
+                    <GradientStop Color="#8A16C1" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.BorderBrush>
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
+                    <GradientStop Color="#060531" Offset="0"/>
+                    <GradientStop Color="#1B1448" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="25"/>
+                        <ColumnDefinition Width="25"/>
+                        <ColumnDefinition Width="5"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="LOG IN"
+                               Foreground="DarkGray"
+                               FontSize="25"
+                               FontFamily="Montserrat"
+                               Grid.Column="0"
+                               VerticalAlignment="Center"
+                               Margin="10,0,0,0"/>
+                    
+                </Grid>
+                <StackPanel Width="220"
+                            Grid.Row="1"
+                            Orientation="Vertical"
+                            Margin="0,35,0,0">
+                   
+                  
+                   
+                    <TextBlock Text="Username"
+                               Foreground="DarkGray"
+                               FontSize="12"
+                               FontWeight="Medium"
+                               FontFamily="Montserrat"                             
+                               Margin="0,35,0,0"/>
+                    <TextBox Name="txtUser"
+                             FontSize="13"
+                             FontWeight="Medium"
+                             FontFamily="Montserrat"                            
+                             Foreground="White"
+                             CaretBrush="LightGray"
+                             BorderBrush="DarkGray"
+                             BorderThickness="0,0,0,2"
+                             Height="28"
+                             VerticalContentAlignment="Center"
+                             Margin="0,5,0,0"
+                             Padding="20,0,0,0">
+                        <TextBox.Background>
+                            <ImageBrush Stretch="None"
+                                        AlignmentX="Left"/>
+                        </TextBox.Background>
+                    </TextBox>
+                    <TextBlock Text="Password"
+                               Foreground="DarkGray"
+                               FontSize="12"
+                               FontWeight="Medium"
+                               FontFamily="Montserrat"                             
+                               Margin="0,15,0,0"/>
+                    <PasswordBox Name="txtPass"
+                             FontSize="13"
+                             FontWeight="Medium"
+                             FontFamily="Montserrat"                            
+                             Foreground="White"
+                             CaretBrush="LightGray"
+                             BorderBrush="DarkGray"
+                             BorderThickness="0,0,0,2"
+                             Height="28"
+                             VerticalContentAlignment="Center"
+                             Margin="0,5,0,0"
+                             Padding="20,0,0,0">
+                        <PasswordBox.Background>
+                            <ImageBrush Stretch="None"
+                                        AlignmentX="Left"/>
+                        </PasswordBox.Background>
+                    </PasswordBox>
+                    <Button Name="btnLogin"                          
+                            BorderThickness="0"
+                            Content="LOG IN"
+                            Foreground="White"
+                            FontSize="12"
+                            FontFamily="Montserrat"
+                            Cursor="Hand"                           
+                            Margin="0,50,0,0"
+                            Click="btnLogin_Click">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="#462AD8"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#28AEED"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border Width="150" Height="40"
+                                        CornerRadius="20"
+                                        Background="{TemplateBinding Background}">
+                                    <ContentPresenter VerticalAlignment="Center"
+                                                      HorizontalAlignment="Center"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+              
+                </StackPanel>
+            </Grid>
         </Border>
-        <TextBlock FontSize="25"
-                   Foreground="Red">DECODE</TextBlock>
 
-        <StackPanel Orientation="Horizontal">
-            <RichTextBox Width="425"
-                    Name="DecodeTxtb2"
-                     FontSize="22"
-                    Height="80"
-                     >
+    </Border>
 
-            </RichTextBox>
-            <StackPanel VerticalAlignment="Center">
-                <Border BorderBrush="Red"
-                        CornerRadius="15"
-                        BorderThickness="2"
-                        Margin="10" >
-                    <Button Name="DeCodeMD5Btn" Click="DeCodeMD5Btn_Click" Margin="10" FontSize="25">MD5</Button>
-                </Border>
-                <Border BorderBrush="Red"
-                        CornerRadius="15"
-                        BorderThickness="2"
-                        Margin="10" >
-                    <Button Name="DeCodeSHA256Btn" Click="DeCodeSHA256Btn_Click" Margin="10" FontSize="25">SHA256</Button>
-                </Border>
-                <Border BorderBrush="Red"
-                        CornerRadius="15"
-                        BorderThickness="2"
-                        Margin="10" >
-                    <Button Name="DeCodeBASE64Btn" Click="DeCodeBASE64Btn_Click" Margin="10" FontSize="25">BASE64</Button>
-                </Border>
-            </StackPanel>
-            <RichTextBox Width="425"
-                     Height="80"
-                 FontSize="20"
-                         Name="EncodeTxtb2"
-                 >
-
-            </RichTextBox>
-        </StackPanel>
-
-    </StackPanel>
 
 </Window>
