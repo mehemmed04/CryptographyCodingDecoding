@@ -22,25 +22,49 @@ namespace CodingDecoding
     /// </summary>
     public partial class MainWindow : Window
     {
-        
+        UserContext uc = new UserContext();
         public MainWindow()
         {
             InitializeComponent();
+            uc.Database.CreateIfNotExists();
         }
-       
+
 
         private void btnLogin_Click(object sender, RoutedEventArgs e)
         {
-            if(txtUser.Text=="ashraf" && txtPass.Password == "12345678")
+            string username = txtUser.Text;
+            string password = txtPass.Password;
+
+            using (var ctx = new UserContext())
             {
-                CryptograpyhWindow cw = new CryptograpyhWindow();
-                cw.Show();
-                this.Close();
+                var users = ctx.Users.ToList();
+                var user = users.FirstOrDefault((u) => { return u.Username == username; });
+                if (user != null)
+                {
+                    if (user.Password==password)
+                    {
+                        CryptograpyhWindow cw = new CryptograpyhWindow();
+                        cw.Show();
+                        this.Close();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Password wrong");
+                    }
+                }
+                else
+                {
+                    MessageBox.Show($"There is not user with {username} username");
+                }
             }
-            else
-            {
-                MessageBox.Show("Yanlisdir.Tekrar yoxlayin");
-            }
+            
+        }
+
+        private void btnRegister_Click(object sender, RoutedEventArgs e)
+        {
+            RegisterWindow rw = new RegisterWindow();
+            rw.Show();
+            this.Close();
         }
     }
 }
